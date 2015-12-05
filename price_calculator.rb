@@ -1,5 +1,4 @@
 class PriceCalculator
-
   attr_accessor :hst_rate, :product_bundles
 
   def initialize(calculator_args)
@@ -8,7 +7,7 @@ class PriceCalculator
   end
 
   def total_price
-    subtotal_amount + hst_amount
+    (subtotal_amount * (1.00 + hst_amount)).round(2)
   end
 
   def add_product_bundle(product_bundle)
@@ -18,18 +17,18 @@ class PriceCalculator
   private
 
   def subtotal_amount
-    @product_bundles.inject(0) { |subtotals, product_bundle |
+    @product_bundles.inject(0) do |subtotals, product_bundle|
       subtotals + product_bundle.subtotal
-    }
+    end
   end
 
   def hst_amount
-    hst_amount = 0.00
-    @product_bundles.each do |product_bundle|
-      hst_amount += (product_bundle.quantity * @hst_rate) if product_bundle.hst_applicable
+    @product_bundles.inject(0) do |hst_amounts, product_bundle|
+      if product_bundle.hst_applicable
+        hst_amounts + (product_bundle.quantity * @hst_rate)
+      else
+        hst_amounts
+      end
     end
-    hst_amount
   end
 end
-
-
